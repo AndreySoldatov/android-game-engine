@@ -5,7 +5,7 @@ pub struct Editor {
 }
 
 impl Editor {
-    pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
+    pub fn new(_cc: &eframe::CreationContext<'_>) -> Self {
         Editor {
             code: "print \"Hello, world!\"".into(),
         }
@@ -13,5 +13,5 @@ impl Editor {
 }
 
 impl eframe::App for Editor {
-    fn ui(&mut self, ui: &mut eframe::egui::Ui, frame: &mut eframe::Frame) {}
+    fn ui(&mut self, _ui: &mut eframe::egui::Ui, _frame: &mut eframe::Frame) {}
 }
