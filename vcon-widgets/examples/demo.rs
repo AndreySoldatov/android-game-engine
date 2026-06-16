@@ -1,7 +1,10 @@
 use std::f32::consts::PI;
 
 use egui::{Slider, Vec2};
-use vcon_widgets::thumbstick::{RadialSnap, Thumbstick};
+use vcon_widgets::{
+    dpad::{Dpad, DpadState},
+    thumbstick::{RadialSnap, Thumbstick},
+};
 
 struct ThumbstickState {
     v: Vec2,
@@ -23,6 +26,8 @@ fn main() {
     let mut do_rs = false;
     let mut rs = 4;
     let mut offset = 0.0;
+
+    let mut dpadv = DpadState::EMPTY;
 
     eframe::run_ui_native(
         "vcon-widgets collection",
@@ -55,6 +60,8 @@ fn main() {
                             None
                         }),
                 );
+
+                ui.add(Dpad::new(&mut dpadv).intersect(true));
             });
         },
     )

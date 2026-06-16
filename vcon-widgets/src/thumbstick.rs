@@ -126,11 +126,10 @@ impl<'a> egui::Widget for Thumbstick<'a> {
         let size = Vec2::splat(self.outer_radius * 2.0 + self.inner_radius * 2.0);
 
         let (rect, response) = ui.allocate_exact_size(size, Sense::drag());
-
         let center = rect.center();
 
         // Input handling
-        if response.dragged() && response.is_pointer_button_down_on() {
+        if response.is_pointer_button_down_on() {
             let pos = response
                 .interact_pointer_pos()
                 .expect("At this point this must be Some()");
