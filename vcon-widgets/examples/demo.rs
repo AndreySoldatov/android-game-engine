@@ -1,6 +1,6 @@
 use std::f32::consts::PI;
 
-use egui::{Checkbox, Rect, Slider, Vec2};
+use egui::{Slider, Vec2};
 use vcon_widgets::thumbstick::{RadialSnap, Thumbstick};
 
 struct ThumbstickState {

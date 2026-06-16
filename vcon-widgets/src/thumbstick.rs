@@ -1,6 +1,6 @@
 use std::f32::consts::PI;
 
-use egui::{Pos2, Sense, Stroke, Vec2};
+use egui::{Sense, Stroke, Vec2};
 
 #[derive(Clone, Copy)]
 pub struct RadialSnap {
@@ -28,6 +28,8 @@ pub struct Thumbstick<'a> {
     /// The radius of the outer circle.
     outer_radius: f32,
     /// The dead zone of the thumbstick. If the value is within the dead zone, it will be set to zero.
+    ///
+    /// This value must be in 0..=1.0 range.
     dead_zone: Option<f32>,
     /// If true, the value will be reset to zero when the user releases the thumbstick.
     reset_on_release: bool,
@@ -57,6 +59,12 @@ impl<'a> Thumbstick<'a> {
     }
 
     pub fn dead_zone(mut self, dead_zone: Option<f32>) -> Self {
+        if let Some(dead_zone) = dead_zone {
+            assert!(
+                dead_zone >= 0.0 && dead_zone <= 1.0,
+                "Deadzone must be in 0..=1.0 range"
+            );
+        }
         self.dead_zone = dead_zone;
         self
     }
@@ -102,8 +110,9 @@ impl<'a> Thumbstick<'a> {
                 "Radial snap steps of the thumbstick must be greater or equal than 2 and less or equal than 8"
             );
             assert!(
-                radial_snap.offset <= ((2.0 * PI) / radial_snap.steps as f32),
-                "Offset must be less or equal step size"
+                radial_snap.offset <= ((2.0 * PI) / radial_snap.steps as f32)
+                    && radial_snap.offset >= 0.0,
+                "Offset must be less or equal step size and greater or equal than zero"
             )
         }
         self.radial_snap = radial_snap;
@@ -140,11 +149,16 @@ impl<'a> egui::Widget for Thumbstick<'a> {
 
             if let Some(length_steps) = self.length_steps {
                 let l = v.length();
-                let closest_step =
-                    (l * (length_steps - 1) as f32).round() / (length_steps - 1) as f32;
-                let scale = closest_step / l;
 
-                v *= scale;
+                if l > 0.0 {
+                    let closest_step =
+                        (l * (length_steps - 1) as f32).round() / (length_steps - 1) as f32;
+                    let scale = closest_step / l;
+
+                    v *= scale;
+                } else {
+                    v = Vec2::ZERO;
+                }
             }
 
             if let Some(radial_snap) = self.radial_snap {
