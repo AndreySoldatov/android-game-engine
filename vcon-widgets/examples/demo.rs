@@ -3,67 +3,122 @@ use std::f32::consts::PI;
 use egui::{Slider, Vec2};
 use vcon_widgets::{
     dpad::{Dpad, DpadState},
-    thumbstick::{RadialSnap, Thumbstick},
+    thumbstick::{AngleSnap, Thumbstick},
 };
 
-struct ThumbstickState {
-    v: Vec2,
-    ir: f32,
-    or: f32,
-    ror: bool,
+struct ThumbstickProperties {
+    value: Vec2,
+    inner_radius: f32,
+    outer_radius: f32,
+    reset_on_release: bool,
+    do_length_steps: bool,
+    length_snap: usize,
+    do_angle_snap: bool,
+    angle_snap: AngleSnap,
+}
+
+struct DpadProperties {
+    value: DpadState,
+    size: f32,
+    intersect: bool,
+}
+
+struct DemoState {
+    thumb: ThumbstickProperties,
+    dpad: DpadProperties,
+}
+
+impl DemoState {
+    fn new(_cc: &eframe::CreationContext<'_>) -> Self {
+        Self {
+            thumb: ThumbstickProperties {
+                value: Vec2::ZERO,
+                inner_radius: 20.0,
+                outer_radius: 60.0,
+                reset_on_release: true,
+                do_length_steps: false,
+                length_snap: 4,
+                do_angle_snap: false,
+                angle_snap: AngleSnap {
+                    steps: 4,
+                    offset: 0.0,
+                },
+            },
+            dpad: DpadProperties {
+                value: DpadState::EMPTY,
+                size: 120.0,
+                intersect: false,
+            },
+        }
+    }
+}
+
+impl eframe::App for DemoState {
+    fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
+        egui::CentralPanel::default().show_inside(ui, |ui| {
+            egui::Grid::new("widgets_grid").show(ui, |ui| {
+                ui.vertical(|ui| {
+                    ui.heading("Thumbstick");
+                    ui.label(format!("{:.2?}", self.thumb.value));
+
+                    ui.label("Inner radius");
+                    ui.add(Slider::new(&mut self.thumb.inner_radius, 1.0..=150.0));
+                    ui.label("Outer radius");
+                    ui.add(Slider::new(&mut self.thumb.outer_radius, 1.0..=150.0));
+
+                    ui.checkbox(&mut self.thumb.reset_on_release, "Reset on release");
+
+                    ui.checkbox(&mut self.thumb.do_length_steps, "Length snap");
+                    ui.label("Length snap segments");
+                    ui.add(Slider::new(&mut self.thumb.length_snap, 2..=8));
+
+                    ui.checkbox(&mut self.thumb.do_angle_snap, "Angle snap");
+                    ui.label("Angle snap segments");
+                    ui.add(Slider::new(&mut self.thumb.angle_snap.steps, 2..=8));
+                    ui.label("Angle snap offset");
+                    ui.add(Slider::new(&mut self.thumb.angle_snap.offset, 0.0..=PI));
+
+                    ui.add(
+                        Thumbstick::new(&mut self.thumb.value)
+                            .inner_radius(self.thumb.inner_radius)
+                            .outer_radius(self.thumb.outer_radius)
+                            .reset_on_release(self.thumb.reset_on_release)
+                            .length_snap(if self.thumb.do_length_steps {
+                                Some(self.thumb.length_snap)
+                            } else {
+                                None
+                            })
+                            .angle_snap(if self.thumb.do_angle_snap {
+                                Some(self.thumb.angle_snap)
+                            } else {
+                                None
+                            }),
+                    );
+                });
+                ui.vertical(|ui| {
+                    ui.heading("Dpad");
+                    ui.label(format!("{:#?}", self.dpad.value));
+
+                    ui.checkbox(&mut self.dpad.intersect, "Intersect");
+                    ui.label("Size");
+                    ui.add(egui::Slider::new(&mut self.dpad.size, 80.0..=200.0));
+
+                    ui.add(
+                        Dpad::new(&mut self.dpad.value)
+                            .intersect(self.dpad.intersect)
+                            .size(self.dpad.size),
+                    );
+                })
+            });
+        });
+    }
 }
 
 fn main() {
-    let mut thumb_state = ThumbstickState {
-        v: Vec2::ZERO,
-        ir: 20.0,
-        or: 80.0,
-        ror: true,
-    };
-    let mut do_ls = false;
-    let mut ls = 4;
-
-    let mut do_rs = false;
-    let mut rs = 4;
-    let mut offset = 0.0;
-
-    let mut dpadv = DpadState::EMPTY;
-
-    eframe::run_ui_native(
+    eframe::run_native(
         "vcon-widgets collection",
         eframe::NativeOptions::default(),
-        move |ui, _frame| {
-            egui::CentralPanel::default().show_inside(ui, |ui| {
-                ui.label(format!("Thumbstick value: {:.2?}", thumb_state.v));
-
-                ui.add(Slider::new(&mut thumb_state.ir, 1.0..=150.0));
-                ui.add(Slider::new(&mut thumb_state.or, 1.0..=150.0));
-
-                ui.checkbox(&mut thumb_state.ror, "Reset on release");
-
-                ui.checkbox(&mut do_ls, "Length snap");
-                ui.add(Slider::new(&mut ls, 2..=8));
-
-                ui.checkbox(&mut do_rs, "Radial snap");
-                ui.add(Slider::new(&mut rs, 2..=8));
-                ui.add(Slider::new(&mut offset, 0.0..=PI));
-
-                ui.add(
-                    Thumbstick::new(&mut thumb_state.v)
-                        .inner_radius(thumb_state.ir)
-                        .outer_radius(thumb_state.or)
-                        .reset_on_release(thumb_state.ror)
-                        .length_steps(if do_ls { Some(ls) } else { None })
-                        .radial_snap(if do_rs {
-                            Some(RadialSnap { steps: rs, offset })
-                        } else {
-                            None
-                        }),
-                );
-
-                ui.add(Dpad::new(&mut dpadv).intersect(true));
-            });
-        },
+        Box::new(|cc| Ok(Box::new(DemoState::new(cc)))),
     )
     .unwrap();
 }

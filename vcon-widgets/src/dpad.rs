@@ -2,7 +2,7 @@ use std::f32::consts::PI;
 
 use egui::{Pos2, Sense, Vec2, epaint::PathShape};
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub struct DpadState {
     pub top: bool,
     pub bottom: bool,
@@ -150,8 +150,10 @@ impl<'a> egui::Widget for Dpad<'a> {
         // Painting
         if ui.is_rect_visible(rect) {
             let painter = ui.painter_at(rect);
-            let va = ui.visuals().widgets.active;
-            let vi = ui.visuals().widgets.inactive;
+            let active_stroke = ui.visuals().widgets.active.bg_stroke;
+            let inactive_stroke = ui.visuals().widgets.inactive.bg_stroke;
+            let active_fill = ui.visuals().widgets.hovered.bg_fill;
+            let inactive_fill = ui.visuals().widgets.inactive.bg_fill;
 
             painter.add(PathShape::convex_polygon(
                 scale_and_move_path(
@@ -160,14 +162,14 @@ impl<'a> egui::Widget for Dpad<'a> {
                     (center + Vec2::new(0.0, -self.size * ONE_THIRD)).to_vec2(),
                 ),
                 if self.value.top {
-                    va.bg_fill
+                    active_fill
                 } else {
-                    vi.bg_fill
+                    inactive_fill
                 },
                 if self.value.top {
-                    va.bg_stroke
+                    active_stroke
                 } else {
-                    vi.bg_stroke
+                    inactive_stroke
                 },
             ));
             painter.add(PathShape::convex_polygon(
@@ -177,14 +179,14 @@ impl<'a> egui::Widget for Dpad<'a> {
                     (center + Vec2::new(0.0, self.size * ONE_THIRD)).to_vec2(),
                 ),
                 if self.value.bottom {
-                    va.bg_fill
+                    active_fill
                 } else {
-                    vi.bg_fill
+                    inactive_fill
                 },
                 if self.value.bottom {
-                    va.bg_stroke
+                    active_stroke
                 } else {
-                    vi.bg_stroke
+                    inactive_stroke
                 },
             ));
             painter.add(PathShape::convex_polygon(
@@ -194,14 +196,14 @@ impl<'a> egui::Widget for Dpad<'a> {
                     (center + Vec2::new(-self.size * ONE_THIRD, 0.0)).to_vec2(),
                 ),
                 if self.value.left {
-                    va.bg_fill
+                    active_fill
                 } else {
-                    vi.bg_fill
+                    inactive_fill
                 },
                 if self.value.left {
-                    va.bg_stroke
+                    active_stroke
                 } else {
-                    vi.bg_stroke
+                    inactive_stroke
                 },
             ));
             painter.add(PathShape::convex_polygon(
@@ -211,14 +213,14 @@ impl<'a> egui::Widget for Dpad<'a> {
                     (center + Vec2::new(self.size * ONE_THIRD, 0.0)).to_vec2(),
                 ),
                 if self.value.right {
-                    va.bg_fill
+                    active_fill
                 } else {
-                    vi.bg_fill
+                    inactive_fill
                 },
                 if self.value.right {
-                    va.bg_stroke
+                    active_stroke
                 } else {
-                    vi.bg_stroke
+                    inactive_stroke
                 },
             ));
         }
