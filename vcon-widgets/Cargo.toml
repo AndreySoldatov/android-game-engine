@@ -5,6 +5,3 @@ edition = "2024"
 
 [dependencies]
 egui = "0.34.3"
-
-[dev-dependencies]
-eframe = "0.34.3"

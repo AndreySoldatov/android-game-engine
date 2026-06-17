@@ -1,3 +1,3 @@
 [workspace]
 resolver = "3"
-members = ["age-gfx", "editor", "vcon-widgets"]
+members = ["age-gfx", "editor", "vcon-widgets", "vcon-widgets/android-demo"]

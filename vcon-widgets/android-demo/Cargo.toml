@@ -1,0 +1,25 @@
+[package]
+name = "android-demo"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+eframe = {version = "0.34.3", default-features = false, features = [
+    "wgpu",
+    "android-game-activity",
+    "default_fonts",
+]}
+android_logger = { version = "0.15", default-features = false }
+winit = { version = "0.30", features = [
+    "android-game-activity",
+]}
+log = "0.4"
+vcon-widgets = { path = "../" }
+
+[features]
+default = []
+desktop = []
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+name = "main"

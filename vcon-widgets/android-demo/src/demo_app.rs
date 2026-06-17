@@ -1,6 +1,7 @@
 use std::f32::consts::PI;
 
-use egui::{Slider, Vec2};
+use eframe::egui;
+use eframe::egui::{Slider, Vec2};
 use vcon_widgets::{
     dpad::{Dpad, DpadState},
     thumbstick::{AngleSnap, Thumbstick},
@@ -23,13 +24,13 @@ struct DpadProperties {
     intersect: bool,
 }
 
-struct DemoState {
+pub struct DemoState {
     thumb: ThumbstickProperties,
     dpad: DpadProperties,
 }
 
 impl DemoState {
-    fn new(_cc: &eframe::CreationContext<'_>) -> Self {
+    pub fn new(_cc: &eframe::CreationContext<'_>) -> Self {
         Self {
             thumb: ThumbstickProperties {
                 value: Vec2::ZERO,
@@ -56,7 +57,7 @@ impl DemoState {
 impl eframe::App for DemoState {
     fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show_inside(ui, |ui| {
-            egui::Grid::new("widgets_grid").show(ui, |ui| {
+            egui::ScrollArea::vertical().show(ui, |ui| {
                 ui.vertical(|ui| {
                     ui.heading("Thumbstick");
                     ui.label(format!("{:.2?}", self.thumb.value));
@@ -95,6 +96,7 @@ impl eframe::App for DemoState {
                             }),
                     );
                 });
+                ui.separator();
                 ui.vertical(|ui| {
                     ui.heading("Dpad");
                     ui.label(format!("{:#?}", self.dpad.value));
@@ -112,13 +114,4 @@ impl eframe::App for DemoState {
             });
         });
     }
-}
-
-fn main() {
-    eframe::run_native(
-        "vcon-widgets collection",
-        eframe::NativeOptions::default(),
-        Box::new(|cc| Ok(Box::new(DemoState::new(cc)))),
-    )
-    .unwrap();
 }
